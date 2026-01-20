@@ -1,25 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
-
+#from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
+from fastapi.templating import Jinja2Templates # Importing Jinja2Templates for rendering HTML templates
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
 
-
-@app.get("/",response_class=HTMLResponse, include_in_schema=False) # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
-@app.get("/posts",response_class=HTMLResponse, include_in_schema=False) # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
-def home(): #this function handles requests to the root URL - not using async for simplicity
-    return f"<h1>Welcome to the FastAPI Blog the first post is {posts[0]['title']}</h1>" # Simple GET endpoint returning a greeting message - changed to return HTML content
+@app.get("/" ,include_in_schema=False) # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
+@app.get("/posts", include_in_schema=False) # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
+def home(request: Request): #adding argument request of type Request to pass to the template
+    return templates.TemplateResponse(request, "home.html", {"posts": posts}) # Simple GET endpoint returning a greeting message - converting json response to HTML using Jinja2 template - passing posts data to the template as dictionary
 
 @app.get("/api/posts") # GET endpoint to retrieve all posts
 def get_posts():
     return {"posts": posts} # Return the list of posts
 
-
-
-
 #fastapi dev main.py - running in dev mode auto reloads on code changes
-
 
 posts: list[dict]  = [
     {

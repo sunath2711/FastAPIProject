@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast API Blog</title>
+</head>
+<body>
+    <h1>Welcome to the Fast API Blog!</h1>
+    {% for post in posts %}  <!-- Loop through each post in the posts list . this adds dynamic content -->
+        <div class="post"> 
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.content }}</p>
+            <p>{{ post.author }}</p>
+            <small>Posted on {{ post.date_posted }}</small>
+        </div>
+        <hr>
+    {% endfor %}
+</body>
+</html>
