@@ -1,13 +1,25 @@
-{% extends "layout.html" %} <!-- Extending the layout template so we don't repeat the same HTML structure -->
-{% block content %} <!-- Start of content block to override the parent template's content block -->
-{% for post in posts %}  <!-- Loop through each post in the posts list . this adds dynamic content -->
-    <div class="post"> 
-        <h2>{{ post.title }}</h2>
-        <p>{{ post.content }}</p>
-        <p>{{ post.author }}</p>
-        <small>Posted on {{ post.date_posted }}</small>
-    </div>
-    <hr>
-{% endfor %}
-{% endblock %} 
-<!-- This template displays a list of blog posts dynamically using Jinja2 templating syntax. Each post's title, content, author, and date posted are rendered within the HTML structure using for loop --></html>
+{% extends "layout.html" %}
+{% block content %}
+  {% for post in posts %}
+    <article class="content-section py-3 px-4 mb-4">
+      <div class="d-flex align-items-start gap-4">
+        <img class="rounded-circle article-img flex-shrink-0"
+             src="/static/profile_pics/default.jpeg"
+             alt="{{ post.author }}'s profile picture"
+             width="64"
+             height="64"
+             loading="lazy">
+        <div class="flex-grow-1">
+          <div class="article-metadata mb-2">
+            <a class="me-2" href="#">{{ post.author }}</a>
+            <small class="text-body-secondary">{{ post.date_posted }}</small>
+          </div>
+          <h2>
+            <a class="article-title" href="#">{{ post.title }}</a>
+          </h2>
+          <p class="article-content">{{ post.content }}</p>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+{% endblock content %}

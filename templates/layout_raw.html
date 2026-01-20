@@ -1,0 +1,17 @@
+<!-- parent template for all pages --><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}  <!-- Check if title variable is provided -->
+        <title>Fast API Blog - {{ title }}</title>  <!-- Use the provided title -->
+    {% else %}
+        <title>Fast API Blog</title>  <!-- Default title if none is provided -->
+    {% endif %}
+</head>
+<body>
+    {% block content %} <!-- Block to be overridden by child templates -->
+    {% endblock %}
+</body>
+</html>
+<!-- This template displays a list of blog posts dynamically using Jinja2 templating syntax. Each post's title, content, author, and date posted are rendered within the HTML structure using for loop --></html>

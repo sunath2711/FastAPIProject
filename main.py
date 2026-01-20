@@ -1,13 +1,15 @@
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 #from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
 from fastapi.templating import Jinja2Templates # Importing Jinja2Templates for rendering HTML templates
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
+app.mount("/static", StaticFiles(directory="static"), name="static") # Mounting static files directory - take 3 arguments: url path, StaticFiles instance with directory, and name
 
-@app.get("/" ,include_in_schema=False) # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
-@app.get("/posts", include_in_schema=False) # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
+@app.get("/" ,include_in_schema=False, name="home") # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
+@app.get("/posts", include_in_schema=False, name="posts") # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
 def home(request: Request): #adding argument request of type Request to pass to the template
     return templates.TemplateResponse(
         request, 

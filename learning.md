@@ -64,3 +64,21 @@ we only keep the content unique to that page and extends the rest from layout pa
     <hr>
 {% endfor %}
 {% endblock %} 
+
+After this we added css and more styling to both home and layout and brought out a strcutre using bootstrap.css
+created a static folder with all icons, profile, and under css/main.css for styling
+
+now to imort static directry in templates we first have import using Fastapi 
+from fastapi.staticfiles import StaticFiles
+
+post that mount the static path
+app.mount("/static", StaticFiles(directory="static"), name="static") # Mounting static files directory -
+ take 3 arguments: url path, StaticFiles instance with directory, and name
+
+ Now we can utilise the static folder for styling
+
+ Further in home and layout.html for href or page links , we avoided using # and instead used url_for 
+               <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a> <!-- Home link - we are passing the function name 'home' to url_for instead of plain # href , this is a better practice for dynamic routing -->
+the function name in main is passed here corrspeding to the page and the end point is linked accordingly- the above is for / or /posts
+
+later we added name in each endpoints to create distinction for home and posts 
