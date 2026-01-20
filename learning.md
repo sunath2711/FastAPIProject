@@ -31,3 +31,36 @@ def home(request: Request):
     return templates.TemplateResponse(request, "home.html") 
 
 pass request as argument and response has the html page we want
+
+we then added dynamic data loading from main.py posts list
+we create for loop and if block for conditions and what to print inside home.html templates
+then inside the main.py return templates.TemplateResponse(request, "home.html") we added 
+     {"posts": posts, "title": "Home"},
+
+it reutns all post, and if title is provided it accordingly runs the if block
+
+# Template inheritance
+Craete one parent template that is applicavle to all pages and all the child will inherit it and add their own updates on top 
+this saves coderewriting and mentioning same code in each html page
+
+we created a layout.html with the common structure and decalred a 
+<body>
+    {% block content %} <!-- Block to be overridden by child templates -->
+    {% endblock %}
+</body>
+
+Now changing the home.html 
+we only keep the content unique to that page and extends the rest from layout parent
+
+{% extends "layout.html" %} <!-- Extending the layout template so we don't repeat the same HTML structure -->
+{% block content %} <!-- Start of content block to override the parent template's content block -->
+{% for post in posts %}  <!-- Loop through each post in the posts list . this adds dynamic content -->
+    <div class="post"> 
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+        <p>{{ post.author }}</p>
+        <small>Posted on {{ post.date_posted }}</small>
+    </div>
+    <hr>
+{% endfor %}
+{% endblock %} 

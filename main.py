@@ -9,7 +9,12 @@ templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates
 @app.get("/" ,include_in_schema=False) # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
 @app.get("/posts", include_in_schema=False) # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
 def home(request: Request): #adding argument request of type Request to pass to the template
-    return templates.TemplateResponse(request, "home.html", {"posts": posts}) # Simple GET endpoint returning a greeting message - converting json response to HTML using Jinja2 template - passing posts data to the template as dictionary
+    return templates.TemplateResponse(
+        request, 
+        "home.html", 
+        {"posts": posts, "title": "Home"}, # Passing request, template name, and context dictionary to the template response
+
+    ) # Simple GET endpoint returning a greeting message - converting json response to HTML using Jinja2 template - passing posts data to the template as dictionary
 
 @app.get("/api/posts") # GET endpoint to retrieve all posts
 def get_posts():
@@ -20,7 +25,7 @@ def get_posts():
 posts: list[dict]  = [
     {
         "id": "12",
-        "author": "sunath khadikar",
+        "author": "Sunath Khadikar",
         "title": "AI is next big thing",
         "content": "Agentic AI and MCP will take over soon, coding is an outdated skill",
         "date_posted": "May 22, 2025" 
