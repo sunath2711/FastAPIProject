@@ -82,3 +82,24 @@ app.mount("/static", StaticFiles(directory="static"), name="static") # Mounting 
 the function name in main is passed here corrspeding to the page and the end point is linked accordingly- the above is for / or /posts
 
 later we added name in each endpoints to create distinction for home and posts 
+
+
+
+# Working on single post opening up and endpoints
+Path Parameters
+
+We now want indivual posts on each endpoint with the posts id being in the endpoint
+like /api/post/12 /api/posts/23 which open indivual post 
+first to have end points
+
+we create new endpoint as 
+
+@app.get("/api/posts/{post_id}") 
+we create a function to call here def get_post and pass integer inside it
+using a for loop we srch inside posts lists for that id , if it matches we return the post 
+
+def get_post(post_id: int):
+    for post in posts:
+        if post.get("id") == post_id:
+            return post
+    return {"error": "Post not found"}

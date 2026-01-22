@@ -24,9 +24,16 @@ def get_posts():
 
 #fastapi dev main.py - running in dev mode auto reloads on code changes
 
+@app.get("/api/posts/{post_id}") # GET endpoint to retrieve a specific post by ID
+def get_post(post_id: int):
+    for post in posts:
+        if post.get("id") == post_id:
+            return post
+    return {"error": "Post not found"} # Return the specific post or an error message if not found
+
 posts: list[dict]  = [
     {
-        "id": "12",
+        "id": 12,
         "author": "Sunath Khadikar",
         "title": "AI is next big thing",
         "content": "Agentic AI and MCP will take over soon, coding is an outdated skill",
@@ -34,28 +41,28 @@ posts: list[dict]  = [
 
     },
     {
-        "id": "13",
+        "id": 13,
         "author": "Jane Doe",
         "title": "The Future of Web Development",
         "content": "With the rise of frameworks like React and Vue, web development is evolving rapidly.",
         "date_posted": "June 15, 2025"
     },
     {
-        "id": "14",
+        "id": 14,
         "author": "John Smith",
         "title": "Machine Learning Basics",
         "content": "Understanding algorithms and data preprocessing is key to ML success.",
         "date_posted": "July 10, 2025"
     },
     {
-        "id": "15",
+        "id": 15,
         "author": "Alice Johnson",
         "title": "Cybersecurity Trends",
         "content": "As threats increase, implementing robust security measures is crucial.",
         "date_posted": "August 5, 2025"
     },
     {
-        "id": "16",
+        "id": 16,
         "author": "Bob Wilson",
         "title": "Cloud Computing Explained",
         "content": "AWS, Azure, and GCP offer scalable solutions for modern applications.",
