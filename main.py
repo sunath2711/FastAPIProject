@@ -4,6 +4,9 @@ from pydantic import BaseModel
 #from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
 from fastapi.templating import Jinja2Templates # Importing Jinja2Templates for rendering HTML templates
 from fastapi import HTTPException, status    # Importing HTTPException for error handling and status for HTTP status codes
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
@@ -20,7 +23,7 @@ def home(request: Request): #adding argument request of type Request to pass to 
     ) # Simple GET endpoint returning a greeting message - converting json response to HTML using Jinja2 template - passing posts data to the template as dictionary
 
 @app.get("/posts/{post_id}", include_in_schema=False) # GET endpoint to retrieve a specific post by ID
-def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
+def post_page(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
     for post in posts:
         if post.get("id") == post_id:
             return templates.TemplateResponse( # Rendering the template for the specific post
@@ -29,7 +32,6 @@ def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and
                 {"post": post, "title": post["title"][:50]}, # Passing the specific post and title to the template
             )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-
 
 @app.get("/api/posts") # GET endpoint to retrieve all posts
 def get_posts():
@@ -43,6 +45,53 @@ def get_post(post_id: int):
         if post.get("id") == post_id:
             return post
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found") # Return the specific post or an error message if not found
+
+@app.exception_handler(StarletteHTTPException)
+def general_http_exception_handler(request: Request, exception: StarletteHTTPException): #this will handle all HTTP exceptions globally
+    message = (
+        exception.detail   # Use the exception detail if available
+        if exception.detail  # and isinstance(exception.detail, str)
+        else "An error occurred. Please check your request and try again."
+    )
+
+    if request.url.path.startswith("/api"):   #checking if the request is for API endpoint and returning JSON response
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"detail": message},
+        )
+
+    return templates.TemplateResponse( #checking if the request is for normal endpoint and returning HTML response
+        request,
+        "error.html",
+        {
+            "status_code": exception.status_code,
+            "title": exception.status_code,
+            "message": message,
+        },
+        status_code=exception.status_code,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request: Request, exception: RequestValidationError): #this will handle validation errors globally
+    if request.url.path.startswith("/api"):  #checking if the request is for API endpoint and returning JSON response
+        return JSONResponse( 
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,  #422 status code for validation errors
+            content={"detail": exception.errors()}, #returning the validation errors in the response
+        )
+
+    return templates.TemplateResponse(  #checking if the request is for normal endpoint and returning HTML response
+        request,
+        "error.html",
+        {
+            "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "title": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "message": "Invalid request. Please check your input and try again.",
+        },
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+    )
+
+
 
 posts: list[dict]  = [
     {

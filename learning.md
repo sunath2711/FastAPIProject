@@ -133,7 +133,7 @@ it extends the layout.html and then nuisances for its own page with edit and del
 then we create another function for pages with endpoint /post/{post_id}
 similar to the get_post function 
 @app.get("/posts/{post_id}", include_in_schema=False) # GET endpoint to retrieve a specific post by ID
-def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
+def post_page(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
     for post in posts:
         if post.get("id") == post_id:
             return templates.TemplateResponse( # Rendering the template for the specific post
@@ -146,3 +146,18 @@ def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and
 the only difference gere is the return for the function, where we return templates.TemplateResponse 
 which is passed with request, template for sigle post, and the post value when matches otherwise an http exception.
 /posts/12 - gives specfic post displayed
+
+Now we work on making the post headings as links to our posts currently the main page post do not open the post as indivudal pages
+for that in the home.html we update the href in post.title to <a class="article-title" href="{{ url_for('post_page', post_id=post.id) }}">{{ post.title }}</a>
+url_for(''post_page) this is the function to be called and post_id is passed as that function also requires the same.
+
+We also work on improving error handling, currently we get 404 if no post exist but on html we get a json which is not most ideal way to tell
+error
+first import 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+we added two new decorators for global exception handling
+@app.exception_handler(StarletteHTTPException) -to handle HTTP exception
+@app.exception_handler(RequestValidationError) - to handle request validation error 
