@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 #from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
 from fastapi.templating import Jinja2Templates # Importing Jinja2Templates for rendering HTML templates
+from fastapi import HTTPException, status    # Importing HTTPException for error handling and status for HTTP status codes
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
@@ -18,6 +19,18 @@ def home(request: Request): #adding argument request of type Request to pass to 
 
     ) # Simple GET endpoint returning a greeting message - converting json response to HTML using Jinja2 template - passing posts data to the template as dictionary
 
+@app.get("/posts/{post_id}", include_in_schema=False) # GET endpoint to retrieve a specific post by ID
+def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
+    for post in posts:
+        if post.get("id") == post_id:
+            return templates.TemplateResponse( # Rendering the template for the specific post
+                request,
+                "post.html", # Template for displaying a single post
+                {"post": post, "title": post["title"][:50]}, # Passing the specific post and title to the template
+            )
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+
 @app.get("/api/posts") # GET endpoint to retrieve all posts
 def get_posts():
     return {"posts": posts} # Return the list of posts
@@ -29,7 +42,7 @@ def get_post(post_id: int):
     for post in posts:
         if post.get("id") == post_id:
             return post
-    return {"error": "Post not found"} # Return the specific post or an error message if not found
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found") # Return the specific post or an error message if not found
 
 posts: list[dict]  = [
     {

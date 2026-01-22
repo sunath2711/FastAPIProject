@@ -103,3 +103,46 @@ def get_post(post_id: int):
         if post.get("id") == post_id:
             return post
     return {"error": "Post not found"}
+
+INFO   127.0.0.1:59483 - "GET /api/posts/1 HTTP/1.1" 200
+INFO   127.0.0.1:49809 - "GET /api/posts/12 HTTP/1.1" 200
+
+currently even if the id doesnt exists , it gives 200 successfull as response
+which should not be the case
+
+then we import the HTTPException and status from fastapi
+and update the function with raise HTTPException with a message so it displays
+also validation is checked automatically if we type /api/posts/abc - so it gives
+{
+  "detail": [
+    {
+      "type": "int_parsing",
+      "loc": [
+        "path",
+        "post_id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "ab"
+    }
+  ]
+}
+now we build indivudal pages 
+first we create the post.html page 
+it extends the layout.html and then nuisances for its own page with edit and delte post options - later for crud operations 
+
+then we create another function for pages with endpoint /post/{post_id}
+similar to the get_post function 
+@app.get("/posts/{post_id}", include_in_schema=False) # GET endpoint to retrieve a specific post by ID
+def get_post(post_id: int, request: Request): #2 arguments: post_id from URL and request of type Request
+    for post in posts:
+        if post.get("id") == post_id:
+            return templates.TemplateResponse( # Rendering the template for the specific post
+                request,
+                "post.html", # Template for displaying a single post
+                {"post": post, "title": post["title"][:50]}, # Passing the specific post and title to the template
+            )
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+the only difference gere is the return for the function, where we return templates.TemplateResponse 
+which is passed with request, template for sigle post, and the post value when matches otherwise an http exception.
+/posts/12 - gives specfic post displayed
