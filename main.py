@@ -38,12 +38,11 @@ def post_page(post_id: int, request: Request): #2 arguments: post_id from URL an
 def get_posts():
     return {"posts": posts} # Return the list of posts
 
-#fastapi dev main.py - running in dev mode auto reloads on code changes
-
+#fastapi dev main.py --port - running in dev mode auto reloads on code changes
 ## Create Post
 @app.post(
     "/api/posts",
-    response_model=PostResponse,
+    response_model=PostResponse, #Postresponse 
     status_code=status.HTTP_201_CREATED,
 )
 def create_post(post: PostCreate):

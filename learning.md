@@ -166,3 +166,38 @@ we added two new decorators for global exception handling
 #Working on CREATE NEW POST
 Pydantic:
 Pydantic is a popular Python library for data validation and settings management, leveraging Python's type hints to define data structures, parse incoming data (like JSON, API requests), and automatically validate that data against your schema, ensuring it's clean, correctly typed, and adheres to rules, preventing errors and making applications more robust. It helps enforce data integrity, offers automatic type conversion (e.g., strings to integers), provides clear error messages for invalid data, and integrates seamlessly with frameworks like FastAPI for building APIs. 
+
+
+Currently we lack a reposnse model, if u check the api docs there is no schema or model for response in paramters it shows parameters, we should be having what is the response return there
+not just success response
+
+we create a new separate file called schemas.py for defining the response
+we then import 
+from pydantic import BaseModel, Fields, ConfigDict
+
+we create class PostBase that inherits from BaseModel 
+Another class to create Post that inherits from PostBase - this will take the content of psotbase whenever created
+PostResponse - defines what we return from our API 
+
+
+class PostResponse(PostBase):  #these fields or this class is what we return from the API
+    model_config = ConfigDict(from_attributes=True) # enable to read objects from attributes and not just dictionary
+
+    id: int
+    date_posted: str
+
+these variables are generated on their own and not rpovided so part of response.
+The response_model=PostResponse parameter in the @app.post decorator serves several key purposes in FastAPI. It's a way to define and enforce the structure of the data your API returns to clients. Here's a breakdown of its use and significance:
+
+1. Response Validation and Serialization
+What It Does: FastAPI automatically validates that the return value from your create_post function matches the PostResponse Pydantic model. If the returned data doesn't conform (e.g., missing fields or wrong types), FastAPI raises an error during development/testing.
+How It Works: In your code, create_post returns a dictionary (new_post). FastAPI converts this dict into a PostResponse instance, ensuring it includes all required fields (id, title, content, author, date_posted). It then serializes this into JSON for the HTTP response.
+Benefit: This prevents bugs where your function accidentally returns malformed data. For example, if you forgot to include id, FastAPI would catch it.
+
+
+Basicall we accept data and validate then and there with PostCreate and PostBase , if any of it fails we have vlaidation errors that are thrown 
+if success then PostResponse is what is returned 
+
+the same concept is carry forwarded when working with databases just that the schema is little different
+
+this data is in memory so goes away if i restart the server. there fore now we switch to databases
