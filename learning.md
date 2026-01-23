@@ -161,3 +161,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 we added two new decorators for global exception handling
 @app.exception_handler(StarletteHTTPException) -to handle HTTP exception
 @app.exception_handler(RequestValidationError) - to handle request validation error 
+
+
+#Working on CREATE NEW POST
+Pydantic:
+Pydantic is a popular Python library for data validation and settings management, leveraging Python's type hints to define data structures, parse incoming data (like JSON, API requests), and automatically validate that data against your schema, ensuring it's clean, correctly typed, and adheres to rules, preventing errors and making applications more robust. It helps enforce data integrity, offers automatic type conversion (e.g., strings to integers), provides clear error messages for invalid data, and integrates seamlessly with frameworks like FastAPI for building APIs. 

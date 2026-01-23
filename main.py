@@ -7,6 +7,7 @@ from fastapi import HTTPException, status    # Importing HTTPException for error
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from schemas import PostResponse, PostCreate
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
@@ -33,13 +34,32 @@ def post_page(post_id: int, request: Request): #2 arguments: post_id from URL an
             )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
-@app.get("/api/posts") # GET endpoint to retrieve all posts
+@app.get("/api/posts", response_model=list[PostResponse]) # GET endpoint to retrieve all posts
 def get_posts():
     return {"posts": posts} # Return the list of posts
 
 #fastapi dev main.py - running in dev mode auto reloads on code changes
 
-@app.get("/api/posts/{post_id}") # GET endpoint to retrieve a specific post by ID
+## Create Post
+@app.post(
+    "/api/posts",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_post(post: PostCreate):
+    new_id = max(p["id"] for p in posts) + 1 if posts else 1
+    new_post = {
+        "id": new_id,
+        "author": post.author,
+        "title": post.title,
+        "content": post.content,
+        "date_posted": "April 23, 2025",
+    }
+    posts.append(new_post)
+    return new_post
+
+
+@app.get("/api/posts/{post_id}", response_model=PostResponse) # GET endpoint to retrieve a specific post by ID
 def get_post(post_id: int):
     for post in posts:
         if post.get("id") == post_id:
