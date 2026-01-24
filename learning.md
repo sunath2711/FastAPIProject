@@ -201,3 +201,5 @@ if success then PostResponse is what is returned
 the same concept is carry forwarded when working with databases just that the schema is little different
 
 this data is in memory so goes away if i restart the server. there fore now we switch to databases
+
+SQLAlchemy Database is pretty much standard for production server with python 
