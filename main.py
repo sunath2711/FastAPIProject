@@ -3,15 +3,25 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 #from fastapi.responses import HTMLResponse # Importing HTMLResponse for converting json response to HTML and displaying in browser
 from fastapi.templating import Jinja2Templates # Importing Jinja2Templates for rendering HTML templates
-from fastapi import HTTPException, status    # Importing HTTPException for error handling and status for HTTP status codes
+from fastapi import HTTPException, status, Depends  # Importing HTTPException for error handling and status for HTTP status codes
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from schemas import PostResponse, PostCreate
+from schemas import PostResponse, PostCreate, UserCreate, UserResponse
+
+from typing import Annotated
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+import models
+from database import Base, engine, get_db
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates") # Setting up Jinja2 templates directory
 app.mount("/static", StaticFiles(directory="static"), name="static") # Mounting static files directory - take 3 arguments: url path, StaticFiles instance with directory, and name
+app.mount("/media", StaticFiles(directory="media"), name="me")
 
 @app.get("/" ,include_in_schema=False, name="home") # a decorator to define a GET endpoint at the root URL - returning HTML response by setting response_class
 @app.get("/posts", include_in_schema=False, name="posts") # a decorator to define a GET endpoint at /posts URL - this is stacking decorators to have multiple routes for the same function
@@ -33,6 +43,44 @@ def post_page(post_id: int, request: Request): #2 arguments: post_id from URL an
                 {"post": post, "title": post["title"][:50]}, # Passing the specific post and title to the template
             )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+##post db and user changes 
+@app.post(
+    "/api/users",
+    response_model=UserResponse, #User response 
+    status_code=status.HTTP_201_CREATED,
+)
+def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]): 
+    result = db.execute(
+        select(models.User).where(models.User.username == user.username),
+    )
+    existing_user = result.scalars().first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already in use! Please select other username",
+        )
+    
+    result = db.execute(
+        select(models.User).where(models.User.email == user.email),
+    )
+    existing_email = result.scalars().first()
+
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already in use! Please select other email-id",
+        )
+    
+    new_user = models.User(
+        username = user.username,
+        email = user.email,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
 
 @app.get("/api/posts", response_model=list[PostResponse]) # GET endpoint to retrieve all posts
 def get_posts():
@@ -112,41 +160,41 @@ def validation_exception_handler(request: Request, exception: RequestValidationE
 
 
 
-posts: list[dict]  = [
-    {
-        "id": 12,
-        "author": "Sunath Khadikar",
-        "title": "AI is next big thing",
-        "content": "Agentic AI and MCP will take over soon, coding is an outdated skill",
-        "date_posted": "May 22, 2025" 
+# posts: list[dict]  = [
+#     {
+#         "id": 12,
+#         "author": "Sunath Khadikar",
+#         "title": "AI is next big thing",
+#         "content": "Agentic AI and MCP will take over soon, coding is an outdated skill",
+#         "date_posted": "May 22, 2025" 
 
-    },
-    {
-        "id": 13,
-        "author": "Jane Doe",
-        "title": "The Future of Web Development",
-        "content": "With the rise of frameworks like React and Vue, web development is evolving rapidly.",
-        "date_posted": "June 15, 2025"
-    },
-    {
-        "id": 14,
-        "author": "John Smith",
-        "title": "Machine Learning Basics",
-        "content": "Understanding algorithms and data preprocessing is key to ML success.",
-        "date_posted": "July 10, 2025"
-    },
-    {
-        "id": 15,
-        "author": "Alice Johnson",
-        "title": "Cybersecurity Trends",
-        "content": "As threats increase, implementing robust security measures is crucial.",
-        "date_posted": "August 5, 2025"
-    },
-    {
-        "id": 16,
-        "author": "Bob Wilson",
-        "title": "Cloud Computing Explained",
-        "content": "AWS, Azure, and GCP offer scalable solutions for modern applications.",
-        "date_posted": "September 20, 2025"
-    }
-]
+#     },
+#     {
+#         "id": 13,
+#         "author": "Jane Doe",
+#         "title": "The Future of Web Development",
+#         "content": "With the rise of frameworks like React and Vue, web development is evolving rapidly.",
+#         "date_posted": "June 15, 2025"
+#     },
+#     {
+#         "id": 14,
+#         "author": "John Smith",
+#         "title": "Machine Learning Basics",
+#         "content": "Understanding algorithms and data preprocessing is key to ML success.",
+#         "date_posted": "July 10, 2025"
+#     },
+#     {
+#         "id": 15,
+#         "author": "Alice Johnson",
+#         "title": "Cybersecurity Trends",
+#         "content": "As threats increase, implementing robust security measures is crucial.",
+#         "date_posted": "August 5, 2025"
+#     },
+#     {
+#         "id": 16,
+#         "author": "Bob Wilson",
+#         "title": "Cloud Computing Explained",
+#         "content": "AWS, Azure, and GCP offer scalable solutions for modern applications.",
+#         "date_posted": "September 20, 2025"
+#     }
+# ]

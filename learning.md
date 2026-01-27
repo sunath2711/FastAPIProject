@@ -203,3 +203,10 @@ the same concept is carry forwarded when working with databases just that the sc
 this data is in memory so goes away if i restart the server. there fore now we switch to databases
 
 SQLAlchemy Database is pretty much standard for production server with python 
+-------------
+using models is built on top of fastapi model and sql , gives more control in this type of structure
+ Flow: 
+
+ Request comes in ---> Pydantic comes into picture for validation ---> SQLalchemy stores/retrieves data based on request ---> Pydantic formats the response ---> Response is received
+
+ 
