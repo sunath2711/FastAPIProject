@@ -209,4 +209,32 @@ using models is built on top of fastapi model and sql , gives more control in th
 
  Request comes in ---> Pydantic comes into picture for validation ---> SQLalchemy stores/retrieves data based on request ---> Pydantic formats the response ---> Response is received
 
- 
+ engine = create_engine(
+Starts creating a database engine using create_engine. The comment explains that the engine represents the connection to the database.
+
+    SQLALCHEMY_DATABASE_URL,
+Passes the database URL to the engine creation.
+
+    connect_args={"check_same_thread": False},
+Provides connection arguments; check_same_thread: False is specific to SQLite to allow connections from multiple threads, which is useful in web applications.
+
+)
+Closes the create_engine call.
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Creates a session factory (SessionLocal) bound to the engine. autocommit=False means transactions must be committed manually, and autoflush=False prevents automatic flushing of changes.
+
+class Base(DeclarativeBase):
+Defines a base class Base inheriting from DeclarativeBase, which is used as the base for all database models in SQLAlchemy.
+
+    pass
+The class body is empty, as it's just a base class.
+
+def get_db():
+Defines a generator function get_db to provide database sessions.
+
+    with SessionLocal() as db:
+Creates a new session instance using SessionLocal and uses it in a context manager.
+
+        yield db
+Yields the session object, allowing it to be used in FastAPI dependency injection for handling database operations. The session is automatically closed when the context exits.
