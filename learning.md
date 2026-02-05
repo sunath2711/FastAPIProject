@@ -178,8 +178,6 @@ from pydantic import BaseModel, Fields, ConfigDict
 we create class PostBase that inherits from BaseModel 
 Another class to create Post that inherits from PostBase - this will take the content of psotbase whenever created
 PostResponse - defines what we return from our API 
-
-
 class PostResponse(PostBase):  #these fields or this class is what we return from the API
     model_config = ConfigDict(from_attributes=True) # enable to read objects from attributes and not just dictionary
 
@@ -194,7 +192,6 @@ What It Does: FastAPI automatically validates that the return value from your cr
 How It Works: In your code, create_post returns a dictionary (new_post). FastAPI converts this dict into a PostResponse instance, ensuring it includes all required fields (id, title, content, author, date_posted). It then serializes this into JSON for the HTTP response.
 Benefit: This prevents bugs where your function accidentally returns malformed data. For example, if you forgot to include id, FastAPI would catch it.
 
-
 Basicall we accept data and validate then and there with PostCreate and PostBase , if any of it fails we have vlaidation errors that are thrown 
 if success then PostResponse is what is returned 
 
@@ -206,7 +203,6 @@ SQLAlchemy Database is pretty much standard for production server with python
 -------------
 using models is built on top of fastapi model and sql , gives more control in this type of structure
  Flow: 
-
  Request comes in ---> Pydantic comes into picture for validation ---> SQLalchemy stores/retrieves data based on request ---> Pydantic formats the response ---> Response is received
 
  engine = create_engine(
@@ -223,13 +219,11 @@ Closes the create_engine call.
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Creates a session factory (SessionLocal) bound to the engine. autocommit=False means transactions must be committed manually, and autoflush=False prevents automatic flushing of changes.
-
 class Base(DeclarativeBase):
 Defines a base class Base inheriting from DeclarativeBase, which is used as the base for all database models in SQLAlchemy.
 
     pass
 The class body is empty, as it's just a base class.
-
 def get_db():
 Defines a generator function get_db to provide database sessions.
 
